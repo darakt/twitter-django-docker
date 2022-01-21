@@ -18,7 +18,8 @@ from django.urls import include, path
 from . import handlers
 
 urlpatterns = [
-    path('crud/', include('crud.urls')),
+    path('user/', include('users.urls')),
+    path('tweet/', include('tweets.urls')),
     path('admin/', admin.site.urls),
     path('', handlers.helloWorld),
 ]
