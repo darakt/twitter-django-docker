@@ -10,8 +10,8 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-        #  - PUID=1000 useless for systemd-coredump problem
-        #  - PGID=1000
+      - PUID=1000 useless for systemd-coredump problem
+      - PGID=1000
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -19,5 +19,7 @@ services:
       - .:/code
     ports:
       - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=twitter.settings
     depends_on:
       - db
