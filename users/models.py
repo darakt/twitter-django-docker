@@ -2,24 +2,41 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import Permission
+import json
+
+attributeWhiteListed = [ # we don't want to pass everything to the front so no need to jsonified everything
+    'id',
+    'username',
+    'first_name',
+    'last_name',
+    'email',
+    'is_staff',
+    'is_active',
+    'date_joined',
+    'profil_img_url',
+    'description',
+    'followers_count'
+]
 
 class User(AbstractUser):
-    '''
-    name = models.CharField(max_length=20, validators=[
-        RegexValidator(
-            regex='^[A-Za-zÀ-ÖØ-öø-ÿ\x27\-\s]{0,255}$',
-            message='Username must be alphanumeric',
-            code='invalid_username'
-            ),
-        ])
-    password = models.CharField(max_length=200)
-    '''
+    def toJson(self):
+        jsonified = {}
+        # No idea how to manage permissions => TODO investigate more
+        # all_permissions = Permission.objects.filter(content_type__app_label='users', content_type__model='user')
+        # for perm in all_permissions:
+        #     print(perm)
+        # print(self.get_user_permissions());
+        for key in self.__dict__.keys():
+            if self.__dict__[key] is not None and key in attributeWhiteListed and self.__dict__[key] != '':
+                # print('[{}] = {}'.format(key, self.__dict__[key]))
+                jsonified[key] = self.__dict__[key]
+        return jsonified
     profil_img_url = models.CharField(max_length=200)
     description = models.TextField()
-    created_on = models.DateTimeField(default=timezone.now)
     followers_count = models.PositiveIntegerField(default=0)
     follow = models.ManyToManyField('self', related_name='follower')
-    # email = models.EmailField(max_length=200),    
+    # email = models.EmailField(max_length=200),
     class meta:
         permissions = [
                 ('can_create_a_tweet', 'As a user I can publish a tweet'),
@@ -30,4 +47,3 @@ class User(AbstractUser):
     def counts_the_followers(self):
         followers = self.followers.all()
         print(len(followers))
-
